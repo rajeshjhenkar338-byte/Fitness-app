@@ -9,7 +9,7 @@
 
 <h3>Add Workout</h3>
 <form method="POST">
-  <input name="workout" placeholder="Workout"><br>
+  <input name="workout" placeholder="Workout type"><br>
   <input name="duration" placeholder="Duration"><br>
   <input name="calories" placeholder="Calories"><br>
   <input name="notes" placeholder="Notes"><br>
@@ -19,13 +19,13 @@
 <h3>Your Workouts</h3>
 <ul>
 {% for w in workouts %}
-  <li>{{w[2]}} - {{w[3]}} min - {{w[4]}} cal</li>
+  <li>{{w[2]}} - {{w[3]}} min - {{w[4]}} cal - {{w[6]}}</li>
 {% endfor %}
 </ul>
 
 <h3>🎯 Add Goal</h3>
 <form action="/add_goal" method="POST">
-  <input name="goal" placeholder="Your goal">
+  <input name="goal" placeholder="Enter goal">
   <button>Add Goal</button>
 </form>
 
