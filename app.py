@@ -15,7 +15,6 @@ def get_db():
 
 def init_db():
     db = get_db()
-
     db.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,7 +34,6 @@ def init_db():
         date TEXT
     )
     """)
-
     db.commit()
 
 init_db()
@@ -44,7 +42,6 @@ init_db()
 def home():
     return redirect("/login")
 
-# REGISTER
 @app.route("/register", methods=["GET","POST"])
 def register():
     if request.method == "POST":
@@ -63,7 +60,6 @@ def register():
 
     return render_template("register.html")
 
-# LOGIN
 @app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
@@ -77,11 +73,10 @@ def login():
             session["user"] = username
             return redirect("/dashboard")
 
-        return "Invalid username or password"
+        return "Invalid login"
 
     return render_template("login.html")
 
-# DASHBOARD
 @app.route("/dashboard", methods=["GET","POST"])
 def dashboard():
     if "user" not in session:
@@ -117,7 +112,6 @@ def dashboard():
 
     return render_template("dashboard.html", workouts=workouts, steps=steps)
 
-# DELETE
 @app.route("/delete/<int:id>")
 def delete(id):
     db = get_db()
@@ -125,7 +119,6 @@ def delete(id):
     db.commit()
     return redirect("/dashboard")
 
-# LOGOUT
 @app.route("/logout")
 def logout():
     session.clear()
