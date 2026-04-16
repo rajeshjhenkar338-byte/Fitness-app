@@ -1,42 +1,58 @@
 <link rel="stylesheet" href="/static/style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<h2>Welcome {{session["user"]}}</h2>
+<div class="nav">
+  <div>Fitness Tracker</div>
+  <a href="/logout" class="logout">Logout</a>
+</div>
 
-<a href="/logout">Logout</a>
+<div class="container">
 
-<h3>🚶 Steps Today: {{steps}}</h3>
+  <div class="card">
+    <h2>Welcome {{session["user"]}}</h2>
+    <p class="steps">🚶 Steps Today: {{steps}}</p>
+  </div>
 
-<h3>Add Workout</h3>
-<form method="POST">
-  <input name="workout" placeholder="Workout type"><br>
-  <input name="duration" placeholder="Duration"><br>
-  <input name="calories" placeholder="Calories"><br>
-  <input name="notes" placeholder="Notes"><br>
-  <button>Add</button>
-</form>
+  <div class="card">
+    <h3>Add Workout</h3>
+    <form method="POST">
+      <input name="workout" placeholder="Workout type">
+      <input name="duration" placeholder="Duration (minutes)">
+      <input name="calories" placeholder="Calories burned">
+      <input name="notes" placeholder="Notes">
+      <button>Add Workout</button>
+    </form>
+  </div>
 
-<h3>Your Workouts</h3>
-<ul>
-{% for w in workouts %}
-  <li>{{w[2]}} - {{w[3]}} min - {{w[4]}} cal - {{w[6]}}</li>
-{% endfor %}
-</ul>
+  <div class="card">
+    <h3>Your Workouts</h3>
+    {% for w in workouts %}
+      <div class="list-item">
+        💪 {{w[2]}} | ⏱ {{w[3]}} min | 🔥 {{w[4]}} cal <br>
+        📝 {{w[5]}} <br>
+        📅 {{w[6]}}
+      </div>
+    {% endfor %}
+  </div>
 
-<h3>🎯 Add Goal</h3>
-<form action="/add_goal" method="POST">
-  <input name="goal" placeholder="Enter goal">
-  <button>Add Goal</button>
-</form>
+  <div class="card">
+    <h3>🎯 Goals</h3>
+    <form action="/add_goal" method="POST">
+      <input name="goal" placeholder="Enter your goal">
+      <button>Add Goal</button>
+    </form>
 
-<ul>
-{% for g in goals %}
-  <li>{{g[2]}}</li>
-{% endfor %}
-</ul>
+    {% for g in goals %}
+      <div class="list-item">✔ {{g[2]}}</div>
+    {% endfor %}
+  </div>
 
-<h3>📈 Calories Chart</h3>
-<canvas id="chart"></canvas>
+  <div class="card">
+    <h3>📈 Calories Chart</h3>
+    <canvas id="chart"></canvas>
+  </div>
+
+</div>
 
 <script>
 let data = {{ workouts|tojson }};
@@ -48,7 +64,9 @@ new Chart(document.getElementById("chart"), {
         labels: calories,
         datasets: [{
             label: "Calories Burned",
-            data: calories
+            data: calories,
+            borderWidth: 2,
+            tension: 0.3
         }]
     }
 });
