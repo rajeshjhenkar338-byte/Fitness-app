@@ -11,7 +11,9 @@ app = Flask(__name__)
 app.secret_key = "secret123"
 
 def get_db():
-    return sqlite3.connect("database.db")
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row   # IMPORTANT FIX
+    return conn
 
 def init_db():
     db = get_db()
@@ -40,19 +42,24 @@ def init_db():
 
 init_db()
 
-# 🤖 AI Suggestion Function
+# AI Suggestion
 def get_suggestion(workouts):
     if not workouts:
-        return "Start your fitness journey today 💪"
+        return "Start your fitness journey 💪"
 
-    avg = sum([w[4] for w in workouts]) / len(workouts)
+    calories = [w["calories"] for w in workouts if w["calories"]]
+
+    if not calories:
+        return "Add workouts to get suggestions"
+
+    avg = sum(calories) / len(calories)
 
     if avg < 200:
-        return "Try increasing workout intensity 🔥"
+        return "Increase workout intensity 🔥"
     elif avg < 500:
-        return "Good job 👍 Maintain consistency!"
+        return "Good consistency 👍"
     else:
-        return "Excellent performance 💯 Keep pushing!"
+        return "Excellent performance 💯"
 
 @app.route("/")
 def home():
@@ -62,8 +69,9 @@ def home():
 def register():
     if request.method == "POST":
         db = get_db()
-        db.execute("INSERT INTO users (username,password) VALUES (?,?)",
-                   (request.form["username"], generate_password_hash(request.form["password"])))
+        db.execute("INSERT INTO users VALUES (NULL, ?, ?)",
+                   (request.form["username"],
+                    generate_password_hash(request.form["password"])))
         db.commit()
         return redirect("/login")
     return render_template("register.html")
@@ -75,7 +83,7 @@ def login():
         user = db.execute("SELECT * FROM users WHERE username=?",
                           (request.form["username"],)).fetchone()
 
-        if user and check_password_hash(user[2], request.form["password"]):
+        if user and check_password_hash(user["password"], request.form["password"]):
             session["user"] = request.form["username"]
             return redirect("/dashboard")
 
@@ -94,10 +102,10 @@ def dashboard():
         VALUES (?,?,?,?,?,?)
         """, (
             session["user"],
-            request.form["workout"],
-            request.form["duration"],
-            request.form["calories"],
-            request.form["notes"],
+            request.form.get("workout"),
+            int(request.form.get("duration") or 0),
+            int(request.form.get("calories") or 0),
+            request.form.get("notes"),
             datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         ))
         db.commit()
@@ -108,10 +116,12 @@ def dashboard():
     ).fetchall()
 
     steps = random.randint(3000,12000)
-
     suggestion = get_suggestion(workouts)
 
-    return render_template("dashboard.html", workouts=workouts, steps=steps, suggestion=suggestion)
+    return render_template("dashboard.html",
+                           workouts=workouts,
+                           steps=steps,
+                           suggestion=suggestion)
 
 @app.route("/delete/<int:id>")
 def delete(id):
@@ -128,10 +138,10 @@ def edit(id):
         db.execute("""
         UPDATE workouts SET workout=?, duration=?, calories=?, notes=? WHERE id=?
         """, (
-            request.form["workout"],
-            request.form["duration"],
-            request.form["calories"],
-            request.form["notes"],
+            request.form.get("workout"),
+            int(request.form.get("duration") or 0),
+            int(request.form.get("calories") or 0),
+            request.form.get("notes"),
             id
         ))
         db.commit()
@@ -153,7 +163,7 @@ def download():
     writer.writerow(["Workout","Duration","Calories","Date"])
 
     for w in workouts:
-        writer.writerow(w)
+        writer.writerow([w["workout"], w["duration"], w["calories"], w["date"]])
 
     return Response(output.getvalue(),
         mimetype="text/csv",
