@@ -136,3 +136,33 @@ def logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+    # DELETE WORKOUT
+@app.route("/delete/<int:id>")
+def delete(id):
+    db = get_db()
+    db.execute("DELETE FROM workouts WHERE id=?", (id,))
+    db.commit()
+    return redirect("/dashboard")
+
+# EDIT WORKOUT
+@app.route("/edit/<int:id>", methods=["GET", "POST"])
+def edit(id):
+    db = get_db()
+
+    if request.method == "POST":
+        workout = request.form["workout"]
+        duration = request.form["duration"]
+        calories = request.form["calories"]
+        notes = request.form["notes"]
+
+        db.execute("""
+        UPDATE workouts 
+        SET workout=?, duration=?, calories=?, notes=? 
+        WHERE id=?
+        """, (workout, duration, calories, notes, id))
+        db.commit()
+
+        return redirect("/dashboard")
+
+    workout = db.execute("SELECT * FROM workouts WHERE id=?", (id,)).fetchone()
+    return render_template("edit.html", w=workout)
