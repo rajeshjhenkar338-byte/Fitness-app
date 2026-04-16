@@ -3,102 +3,68 @@
 
 <div class="sidebar">
   <h2>🏋️ Fitness</h2>
-
-  <a href="/download">⬇ Download Report</a>
+  <a href="/download">⬇ Download</a>
   <a href="/logout">Logout</a>
 </div>
 
 <div class="main">
 
-  <!-- Welcome -->
-  <div class="card">
-    <h2>Welcome {{session["user"]}}</h2>
-    <h3>🚶 Steps Today: {{steps}}</h3>
-  </div>
+<div class="card">
+<h2>Welcome {{session["user"]}}</h2>
+<h3>🚶 Steps: {{steps}}</h3>
+</div>
 
-  <!-- Add Workout -->
-  <div class="card">
-    <h3>Add Workout</h3>
-    <form method="POST">
-      <input name="workout" placeholder="Workout type" required>
-      <input name="duration" placeholder="Duration (minutes)" required>
-      <input name="calories" placeholder="Calories burned" required>
-      <input name="notes" placeholder="Notes">
-      <button>Add Workout</button>
-    </form>
-  </div>
+<div class="card">
+<h3>Add Workout</h3>
+<form method="POST">
+<input name="workout" placeholder="Workout">
+<input name="duration" placeholder="Duration">
+<input name="calories" placeholder="Calories">
+<input name="notes" placeholder="Notes">
+<button>Add</button>
+</form>
+</div>
 
-  <!-- Workout List -->
-  <div class="card">
-    <h3>Your Workouts</h3>
+<div class="card">
+<h3>Workouts</h3>
+{% for w in workouts %}
+<div class="item">
+{{w[2]}} - {{w[4]}} cal
+<a href="/edit/{{w[0]}}">Edit</a>
+<a href="/delete/{{w[0]}}">Delete</a>
+</div>
+{% endfor %}
+</div>
 
-    {% for w in workouts %}
-      <div class="item">
-        💪 <b>{{w[2]}}</b> |
-        🔥 {{w[4]}} cal |
-        ⏱ {{w[3]}} min <br>
-        📅 {{w[6]}} <br>
+<div class="card">
+<h3>📈 Calories Chart</h3>
+<canvas id="chart"></canvas>
+</div>
 
-        <a href="/edit/{{w[0]}}">✏️ Edit</a> |
-        <a href="/delete/{{w[0]}}">❌ Delete</a>
-      </div>
-    {% endfor %}
-
-  </div>
-
-  <!-- Chart -->
-  <div class="card">
-    <h3>📈 Calories Progress</h3>
-    <canvas id="chart"></canvas>
-  </div>
+<div class="card">
+<h3>🧮 BMI Calculator</h3>
+<input id="weight" placeholder="Weight (kg)">
+<input id="height" placeholder="Height (cm)">
+<button onclick="calcBMI()">Calculate</button>
+<p id="bmi"></p>
+</div>
 
 </div>
 
 <script>
 let data = {{ workouts|tojson }};
+let labels = data.map(w=>w[6]);
+let cal = data.map(w=>w[4]);
 
-// Extract data
-let labels = data.map(w => w[6]);   // date
-let calories = data.map(w => w[4]); // calories
-
-const ctx = document.getElementById("chart").getContext("2d");
-
-// Gradient effect
-let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-gradient.addColorStop(0, "#00c6ff");
-gradient.addColorStop(1, "transparent");
-
-// Create chart
-new Chart(ctx, {
-  type: "line",
-  data: {
-    labels: labels,
-    datasets: [{
-      label: "Calories Burned Over Time",
-      data: calories,
-      fill: true,
-      backgroundColor: gradient,
-      borderColor: "#00c6ff",
-      tension: 0.4,
-      pointRadius: 5
-    }]
-  },
-  options: {
-    plugins: {
-      legend: {
-        labels: {
-          color: "white"
-        }
-      }
-    },
-    scales: {
-      x: {
-        ticks: { color: "white" }
-      },
-      y: {
-        ticks: { color: "white" }
-      }
-    }
-  }
+new Chart(document.getElementById("chart"),{
+ type:"bar",
+ data:{labels:labels,datasets:[{label:"Calories",data:cal}]}
 });
+
+function calcBMI(){
+ let w=document.getElementById("weight").value;
+ let h=document.getElementById("height").value/100;
+ let bmi=(w/(h*h)).toFixed(2);
+ document.getElementById("bmi").innerText="BMI: "+bmi;
+}
 </script>
