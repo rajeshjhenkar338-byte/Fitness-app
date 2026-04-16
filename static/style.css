@@ -5,7 +5,6 @@ body {
   color: white;
 }
 
-/* Sidebar */
 .sidebar {
   width: 220px;
   height: 100vh;
@@ -15,18 +14,6 @@ body {
   padding: 20px;
 }
 
-.sidebar h2 {
-  margin-bottom: 30px;
-}
-
-.sidebar a {
-  display: block;
-  margin: 15px 0;
-  color: white;
-  text-decoration: none;
-}
-
-/* Main */
 .main {
   margin-left: 240px;
   padding: 20px;
@@ -34,13 +21,12 @@ body {
 
 .card {
   background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(12px);
   padding: 20px;
   border-radius: 15px;
   margin-bottom: 20px;
+  animation: fade 0.5s;
 }
 
-/* Inputs */
 input {
   width: 100%;
   padding: 10px;
@@ -49,24 +35,26 @@ input {
   border: none;
 }
 
-/* Button */
 button {
-  background: #ff7b00;
+  background: orange;
   color: white;
-  border: none;
   padding: 10px;
+  border: none;
   border-radius: 8px;
   cursor: pointer;
 }
 
-/* Steps */
-.steps {
-  font-size: 22px;
-  font-weight: bold;
-}
-
-/* List */
 .item {
   padding: 10px;
   border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.light {
+  background: #f4f6f9;
+  color: black;
+}
+
+@keyframes fade {
+  from {opacity:0; transform:translateY(10px);}
+  to {opacity:1;}
 }
