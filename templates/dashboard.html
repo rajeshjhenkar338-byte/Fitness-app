@@ -32,9 +32,9 @@
 <div class="card">
 {% for w in workouts %}
 <div class="item">
-{{w[2]}} - {{w[4]}} cal
-<a href="/edit/{{w[0]}}">Edit</a>
-<a href="/delete/{{w[0]}}">Delete</a>
+{{w["workout"]}} - {{w["calories"]}} cal
+<a href="/edit/{{w["id"]}}">Edit</a>
+<a href="/delete/{{w["id"]}}">Delete</a>
 </div>
 {% endfor %}
 </div>
@@ -46,12 +46,15 @@
 </div>
 
 <script>
-let data={{workouts|tojson}};
-let labels=data.map(w=>w[6]);
-let cal=data.map(w=>w[4]);
+let data = {{ workouts|tojson | safe }};
 
-new Chart(document.getElementById("chart"),{
- type:"line",
- data:{labels:labels,datasets:[{label:"Calories",data:cal}]}
-});
+let labels = data.map(w => w.date);
+let cal = data.map(w => w.calories);
+
+if (labels.length > 0) {
+ new Chart(document.getElementById("chart"),{
+  type:"line",
+  data:{labels:labels,datasets:[{label:"Calories",data:cal}]}
+ });
+}
 </script>
