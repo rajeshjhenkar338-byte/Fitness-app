@@ -1,0 +1,55 @@
+<link rel="stylesheet" href="/static/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<h2>Welcome {{session["user"]}}</h2>
+
+<a href="/logout">Logout</a>
+
+<h3>🚶 Steps Today: {{steps}}</h3>
+
+<h3>Add Workout</h3>
+<form method="POST">
+  <input name="workout" placeholder="Workout"><br>
+  <input name="duration" placeholder="Duration"><br>
+  <input name="calories" placeholder="Calories"><br>
+  <input name="notes" placeholder="Notes"><br>
+  <button>Add</button>
+</form>
+
+<h3>Your Workouts</h3>
+<ul>
+{% for w in workouts %}
+  <li>{{w[2]}} - {{w[3]}} min - {{w[4]}} cal</li>
+{% endfor %}
+</ul>
+
+<h3>🎯 Add Goal</h3>
+<form action="/add_goal" method="POST">
+  <input name="goal" placeholder="Your goal">
+  <button>Add Goal</button>
+</form>
+
+<ul>
+{% for g in goals %}
+  <li>{{g[2]}}</li>
+{% endfor %}
+</ul>
+
+<h3>📈 Calories Chart</h3>
+<canvas id="chart"></canvas>
+
+<script>
+let data = {{ workouts|tojson }};
+let calories = data.map(w => w[4]);
+
+new Chart(document.getElementById("chart"), {
+    type: "line",
+    data: {
+        labels: calories,
+        datasets: [{
+            label: "Calories Burned",
+            data: calories
+        }]
+    }
+});
+</script>
