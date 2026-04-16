@@ -1,75 +1,40 @@
 <link rel="stylesheet" href="/static/style.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="sidebar">
-  <h2>🏋️ Fitness</h2>
-  <a href="#">Dashboard</a>
+<div class="topbar">
+  <h3>Fitness Tracker</h3>
   <a href="/logout">Logout</a>
 </div>
 
 <div class="main">
 
-  <div class="card">
-    <h2>Welcome {{session["user"]}}</h2>
-    <p class="steps">🚶 Steps: {{steps}}</p>
-  </div>
+<h2>Welcome {{session["user"]}}</h2>
+<h3>Steps Today: {{steps}}</h3>
 
-  <div class="card">
-    <h3>Add Workout</h3>
-    <form method="POST">
-      <input name="workout" placeholder="Workout">
-      <input name="duration" placeholder="Duration">
-      <input name="calories" placeholder="Calories">
-      <input name="notes" placeholder="Notes">
-      <button>Add</button>
-    </form>
-  </div>
+<div class="grid">
 
-  <div class="card">
-    <h3>Workouts</h3>
-    {% for w in workouts %}
-      <div class="item">
-        💪 {{w[2]}} | 🔥 {{w[4]}} cal | ⏱ {{w[3]}} min
-      </div>
-    {% endfor %}
-  </div>
+<div class="card2">
+<h3>Add Workout</h3>
+<form method="POST">
+<input name="workout" placeholder="Workout" required>
+<input name="duration" placeholder="Duration" required>
+<input name="calories" placeholder="Calories" required>
+<input name="notes" placeholder="Notes">
+<button>Add</button>
+</form>
+</div>
 
-  <div class="card">
-    <h3>📈 Advanced Calories Chart</h3>
-    <canvas id="chart"></canvas>
-  </div>
+<div class="card2">
+<h3>Your Workouts</h3>
+
+{% for w in workouts %}
+<p>
+{{w["workout"]}} - {{w["calories"]}} cal
+<a href="/delete/{{w['id']}}">Delete</a>
+</p>
+{% endfor %}
 
 </div>
 
-<script>
-let data = {{ workouts|tojson }};
-let labels = data.map(w => w[6]);
-let calories = data.map(w => w[4]);
+</div>
 
-const ctx = document.getElementById('chart').getContext('2d');
-
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: labels,
-        datasets: [{
-            label: 'Calories Burned',
-            data: calories,
-            fill: true,
-            backgroundColor: 'rgba(255,123,0,0.2)',
-            borderColor: '#ff7b00',
-            tension: 0.4,
-            pointRadius: 5
-        }]
-    },
-    options: {
-        plugins: {
-            legend: { labels: { color: 'white' } }
-        },
-        scales: {
-            x: { ticks: { color: 'white' } },
-            y: { ticks: { color: 'white' } }
-        }
-    }
-});
-</script>
+</div>
