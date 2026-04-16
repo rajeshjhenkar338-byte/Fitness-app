@@ -44,40 +44,29 @@ init_db()
 def home():
     return redirect("/login")
 
-# REGISTER (with hashing)
 @app.route("/register", methods=["GET","POST"])
 def register():
     if request.method == "POST":
-        username = request.form["username"]
-        password = generate_password_hash(request.form["password"])
-
         db = get_db()
         db.execute("INSERT INTO users (username,password) VALUES (?,?)",
-                   (username, password))
+                   (request.form["username"], generate_password_hash(request.form["password"])))
         db.commit()
-
         return redirect("/login")
-
     return render_template("register.html")
 
-# LOGIN (with hash check)
 @app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-
         db = get_db()
         user = db.execute("SELECT * FROM users WHERE username=?",
-                          (username,)).fetchone()
+                          (request.form["username"],)).fetchone()
 
-        if user and check_password_hash(user[2], password):
-            session["user"] = username
+        if user and check_password_hash(user[2], request.form["password"]):
+            session["user"] = request.form["username"]
             return redirect("/dashboard")
 
     return render_template("login.html")
 
-# DASHBOARD
 @app.route("/dashboard", methods=["GET","POST"])
 def dashboard():
     if "user" not in session:
@@ -108,7 +97,6 @@ def dashboard():
 
     return render_template("dashboard.html", workouts=workouts, steps=steps)
 
-# DELETE
 @app.route("/delete/<int:id>")
 def delete(id):
     db = get_db()
@@ -116,7 +104,6 @@ def delete(id):
     db.commit()
     return redirect("/dashboard")
 
-# EDIT
 @app.route("/edit/<int:id>", methods=["GET","POST"])
 def edit(id):
     db = get_db()
@@ -137,7 +124,6 @@ def edit(id):
     workout = db.execute("SELECT * FROM workouts WHERE id=?", (id,)).fetchone()
     return render_template("edit.html", w=workout)
 
-# CSV DOWNLOAD
 @app.route("/download")
 def download():
     db = get_db()
@@ -162,7 +148,6 @@ def logout():
     session.clear()
     return redirect("/login")
 
-# Render fix
 if __name__ == "__main__":
     port = int(os.environ.get("PORT",5000))
     app.run(host="0.0.0.0", port=port)
