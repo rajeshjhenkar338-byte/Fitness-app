@@ -40,6 +40,20 @@ def init_db():
 
 init_db()
 
+# 🤖 AI Suggestion Function
+def get_suggestion(workouts):
+    if not workouts:
+        return "Start your fitness journey today 💪"
+
+    avg = sum([w[4] for w in workouts]) / len(workouts)
+
+    if avg < 200:
+        return "Try increasing workout intensity 🔥"
+    elif avg < 500:
+        return "Good job 👍 Maintain consistency!"
+    else:
+        return "Excellent performance 💯 Keep pushing!"
+
 @app.route("/")
 def home():
     return redirect("/login")
@@ -95,7 +109,9 @@ def dashboard():
 
     steps = random.randint(3000,12000)
 
-    return render_template("dashboard.html", workouts=workouts, steps=steps)
+    suggestion = get_suggestion(workouts)
+
+    return render_template("dashboard.html", workouts=workouts, steps=steps, suggestion=suggestion)
 
 @app.route("/delete/<int:id>")
 def delete(id):
