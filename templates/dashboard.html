@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="/static/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="topbar">
   <h3>Fitness Tracker</h3>
@@ -15,9 +16,9 @@
 <div class="card2">
 <h3>Add Workout</h3>
 <form method="POST">
-<input name="workout" placeholder="Workout" required>
-<input name="duration" placeholder="Duration" required>
-<input name="calories" placeholder="Calories" required>
+<input name="workout" required placeholder="Workout">
+<input name="duration" required placeholder="Duration">
+<input name="calories" required placeholder="Calories">
 <input name="notes" placeholder="Notes">
 <button>Add</button>
 </form>
@@ -37,4 +38,31 @@
 
 </div>
 
+<div class="card2" style="margin-top:20px;">
+<h3>Calories Chart</h3>
+<canvas id="chart"></canvas>
 </div>
+
+</div>
+
+<script>
+let data = {{ workouts|tojson | safe }};
+
+let labels = data.map(w => w.date);
+let calories = data.map(w => w.calories);
+
+if(labels.length > 0){
+ new Chart(document.getElementById("chart"), {
+   type: 'line',
+   data: {
+     labels: labels,
+     datasets: [{
+       label: 'Calories Burned',
+       data: calories,
+       borderColor: 'blue',
+       fill: false
+     }]
+   }
+ });
+}
+</script>
