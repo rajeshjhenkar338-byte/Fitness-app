@@ -3,7 +3,7 @@
 
 <div class="sidebar">
   <h2>🏋️ Fitness</h2>
-  <a href="/download">⬇ Download</a>
+  <a href="/download">Download</a>
   <a href="/logout">Logout</a>
 </div>
 
@@ -15,7 +15,11 @@
 </div>
 
 <div class="card">
-<h3>Add Workout</h3>
+<h3>🤖 AI Suggestion</h3>
+<p>{{suggestion}}</p>
+</div>
+
+<div class="card">
 <form method="POST">
 <input name="workout" placeholder="Workout">
 <input name="duration" placeholder="Duration">
@@ -26,7 +30,6 @@
 </div>
 
 <div class="card">
-<h3>Workouts</h3>
 {% for w in workouts %}
 <div class="item">
 {{w[2]}} - {{w[4]}} cal
@@ -37,34 +40,18 @@
 </div>
 
 <div class="card">
-<h3>📈 Calories Chart</h3>
 <canvas id="chart"></canvas>
-</div>
-
-<div class="card">
-<h3>🧮 BMI Calculator</h3>
-<input id="weight" placeholder="Weight (kg)">
-<input id="height" placeholder="Height (cm)">
-<button onclick="calcBMI()">Calculate</button>
-<p id="bmi"></p>
 </div>
 
 </div>
 
 <script>
-let data = {{ workouts|tojson }};
-let labels = data.map(w=>w[6]);
-let cal = data.map(w=>w[4]);
+let data={{workouts|tojson}};
+let labels=data.map(w=>w[6]);
+let cal=data.map(w=>w[4]);
 
 new Chart(document.getElementById("chart"),{
- type:"bar",
+ type:"line",
  data:{labels:labels,datasets:[{label:"Calories",data:cal}]}
 });
-
-function calcBMI(){
- let w=document.getElementById("weight").value;
- let h=document.getElementById("height").value/100;
- let bmi=(w/(h*h)).toFixed(2);
- document.getElementById("bmi").innerText="BMI: "+bmi;
-}
 </script>
