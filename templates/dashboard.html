@@ -1,25 +1,19 @@
 <link rel="stylesheet" href="/static/style.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="sidebar">
-  <h2>🏋️ Fitness</h2>
-  <a href="/download">Download</a>
+<div class="topbar">
+  <h3>Fitness Tracker</h3>
   <a href="/logout">Logout</a>
 </div>
 
 <div class="main">
 
-<div class="card">
 <h2>Welcome {{session["user"]}}</h2>
-<h3>🚶 Steps: {{steps}}</h3>
-</div>
+<h3>Steps Today: {{steps}}</h3>
 
-<div class="card">
-<h3>🤖 AI Suggestion</h3>
-<p>{{suggestion}}</p>
-</div>
+<div class="grid">
 
-<div class="card">
+<div class="card2">
+<h3>Add Workout</h3>
 <form method="POST">
 <input name="workout" placeholder="Workout">
 <input name="duration" placeholder="Duration">
@@ -29,32 +23,18 @@
 </form>
 </div>
 
-<div class="card">
+<div class="card2">
+<h3>Your Workouts</h3>
+
 {% for w in workouts %}
-<div class="item">
+<p>
 {{w["workout"]}} - {{w["calories"]}} cal
-<a href="/edit/{{w["id"]}}">Edit</a>
-<a href="/delete/{{w["id"]}}">Delete</a>
-</div>
+<a href="/delete/{{w['id']}}">Delete</a>
+</p>
 {% endfor %}
-</div>
 
-<div class="card">
-<canvas id="chart"></canvas>
 </div>
 
 </div>
 
-<script>
-let data = {{ workouts|tojson | safe }};
-
-let labels = data.map(w => w.date);
-let cal = data.map(w => w.calories);
-
-if (labels.length > 0) {
- new Chart(document.getElementById("chart"),{
-  type:"line",
-  data:{labels:labels,datasets:[{label:"Calories",data:cal}]}
- });
-}
-</script>
+</div>
