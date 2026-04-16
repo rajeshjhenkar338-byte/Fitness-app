@@ -1,17 +1,24 @@
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #0f2027, #2c5364);
-  color: white;
+  background: #f4f6f9;
+  color: #333;
 }
 
 .sidebar {
   width: 220px;
   height: 100vh;
   position: fixed;
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(12px);
+  background: #ffffff;
   padding: 20px;
+  border-right: 1px solid #ddd;
+}
+
+.sidebar a {
+  display: block;
+  margin: 10px 0;
+  color: #333;
+  text-decoration: none;
 }
 
 .main {
@@ -20,10 +27,11 @@ body {
 }
 
 .card {
-  background: rgba(255,255,255,0.1);
+  background: #ffffff;
   padding: 20px;
-  border-radius: 12px;
+  border-radius: 10px;
   margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 input {
@@ -31,11 +39,11 @@ input {
   padding: 10px;
   margin: 8px 0;
   border-radius: 6px;
-  border: none;
+  border: 1px solid #ccc;
 }
 
 button {
-  background: #00c6ff;
+  background: #007BFF;
   color: white;
   padding: 10px;
   border: none;
@@ -44,5 +52,5 @@ button {
 
 .item {
   padding: 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.2);
+  border-bottom: 1px solid #eee;
 }
