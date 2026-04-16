@@ -33,14 +33,6 @@ def init_db():
     )
     """)
 
-    db.execute("""
-    CREATE TABLE IF NOT EXISTS goals (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user TEXT,
-        goal TEXT
-    )
-    """)
-
     db.commit()
 
 init_db()
@@ -49,39 +41,28 @@ init_db()
 def home():
     return redirect("/login")
 
-@app.route("/register", methods=["GET", "POST"])
+@app.route("/register", methods=["GET","POST"])
 def register():
     if request.method == "POST":
-        user = request.form["username"]
-        password = request.form["password"]
-
         db = get_db()
-        db.execute("INSERT INTO users (username, password) VALUES (?, ?)", (user, password))
+        db.execute("INSERT INTO users (username,password) VALUES (?,?)",
+                   (request.form["username"], request.form["password"]))
         db.commit()
-
         return redirect("/login")
-
     return render_template("register.html")
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
-        user = request.form["username"]
-        password = request.form["password"]
-
         db = get_db()
-        result = db.execute(
-            "SELECT * FROM users WHERE username=? AND password=?",
-            (user, password)
-        ).fetchone()
-
-        if result:
-            session["user"] = user
+        user = db.execute("SELECT * FROM users WHERE username=? AND password=?",
+                          (request.form["username"], request.form["password"])).fetchone()
+        if user:
+            session["user"] = request.form["username"]
             return redirect("/dashboard")
-
     return render_template("login.html")
 
-@app.route("/dashboard", methods=["GET", "POST"])
+@app.route("/dashboard", methods=["GET","POST"])
 def dashboard():
     if "user" not in session:
         return redirect("/login")
@@ -89,16 +70,17 @@ def dashboard():
     db = get_db()
 
     if request.method == "POST":
-        workout = request.form["workout"]
-        duration = request.form["duration"]
-        calories = request.form["calories"]
-        notes = request.form["notes"]
-        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
         db.execute("""
         INSERT INTO workouts (user, workout, duration, calories, notes, date)
-        VALUES (?, ?, ?, ?, ?, ?)
-        """, (session["user"], workout, duration, calories, notes, date))
+        VALUES (?,?,?,?,?,?)
+        """, (
+            session["user"],
+            request.form["workout"],
+            request.form["duration"],
+            request.form["calories"],
+            request.form["notes"],
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        ))
         db.commit()
 
     workouts = db.execute(
@@ -106,37 +88,11 @@ def dashboard():
         (session["user"],)
     ).fetchall()
 
-    goals = db.execute(
-        "SELECT * FROM goals WHERE user=?",
-        (session["user"],)
-    ).fetchall()
+    steps = random.randint(3000,12000)
 
-    steps = random.randint(3000, 12000)
+    return render_template("dashboard.html", workouts=workouts, steps=steps)
 
-    return render_template("dashboard.html", workouts=workouts, goals=goals, steps=steps)
-
-@app.route("/add_goal", methods=["POST"])
-def add_goal():
-    if "user" not in session:
-        return redirect("/login")
-
-    goal = request.form["goal"]
-
-    db = get_db()
-    db.execute("INSERT INTO goals (user, goal) VALUES (?, ?)", (session["user"], goal))
-    db.commit()
-
-    return redirect("/dashboard")
-
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/login")
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-    # DELETE WORKOUT
+# DELETE
 @app.route("/delete/<int:id>")
 def delete(id):
     db = get_db()
@@ -144,25 +100,33 @@ def delete(id):
     db.commit()
     return redirect("/dashboard")
 
-# EDIT WORKOUT
-@app.route("/edit/<int:id>", methods=["GET", "POST"])
+# EDIT
+@app.route("/edit/<int:id>", methods=["GET","POST"])
 def edit(id):
     db = get_db()
 
     if request.method == "POST":
-        workout = request.form["workout"]
-        duration = request.form["duration"]
-        calories = request.form["calories"]
-        notes = request.form["notes"]
-
         db.execute("""
-        UPDATE workouts 
-        SET workout=?, duration=?, calories=?, notes=? 
-        WHERE id=?
-        """, (workout, duration, calories, notes, id))
+        UPDATE workouts SET workout=?, duration=?, calories=?, notes=? WHERE id=?
+        """, (
+            request.form["workout"],
+            request.form["duration"],
+            request.form["calories"],
+            request.form["notes"],
+            id
+        ))
         db.commit()
-
         return redirect("/dashboard")
 
     workout = db.execute("SELECT * FROM workouts WHERE id=?", (id,)).fetchone()
     return render_template("edit.html", w=workout)
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
+
+# Render fix
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT",5000))
+    app.run(host="0.0.0.0", port=port)
