@@ -1,54 +1,41 @@
 <link rel="stylesheet" href="/static/style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="nav">
-  <div>Fitness Tracker</div>
-  <a href="/logout" class="logout">Logout</a>
+<div class="sidebar">
+  <h2>🏋️ Fitness</h2>
+  <a href="#">Dashboard</a>
+  <a href="/logout">Logout</a>
 </div>
 
-<div class="container">
+<div class="main">
 
   <div class="card">
     <h2>Welcome {{session["user"]}}</h2>
-    <p class="steps">🚶 Steps Today: {{steps}}</p>
+    <p class="steps">🚶 Steps: {{steps}}</p>
   </div>
 
   <div class="card">
     <h3>Add Workout</h3>
     <form method="POST">
-      <input name="workout" placeholder="Workout type">
-      <input name="duration" placeholder="Duration (minutes)">
-      <input name="calories" placeholder="Calories burned">
+      <input name="workout" placeholder="Workout">
+      <input name="duration" placeholder="Duration">
+      <input name="calories" placeholder="Calories">
       <input name="notes" placeholder="Notes">
-      <button>Add Workout</button>
+      <button>Add</button>
     </form>
   </div>
 
   <div class="card">
-    <h3>Your Workouts</h3>
+    <h3>Workouts</h3>
     {% for w in workouts %}
-      <div class="list-item">
-        💪 {{w[2]}} | ⏱ {{w[3]}} min | 🔥 {{w[4]}} cal <br>
-        📝 {{w[5]}} <br>
-        📅 {{w[6]}}
+      <div class="item">
+        💪 {{w[2]}} | 🔥 {{w[4]}} cal | ⏱ {{w[3]}} min
       </div>
     {% endfor %}
   </div>
 
   <div class="card">
-    <h3>🎯 Goals</h3>
-    <form action="/add_goal" method="POST">
-      <input name="goal" placeholder="Enter your goal">
-      <button>Add Goal</button>
-    </form>
-
-    {% for g in goals %}
-      <div class="list-item">✔ {{g[2]}}</div>
-    {% endfor %}
-  </div>
-
-  <div class="card">
-    <h3>📈 Calories Chart</h3>
+    <h3>📈 Advanced Calories Chart</h3>
     <canvas id="chart"></canvas>
   </div>
 
@@ -56,18 +43,33 @@
 
 <script>
 let data = {{ workouts|tojson }};
+let labels = data.map(w => w[6]);
 let calories = data.map(w => w[4]);
 
-new Chart(document.getElementById("chart"), {
-    type: "line",
+const ctx = document.getElementById('chart').getContext('2d');
+
+new Chart(ctx, {
+    type: 'line',
     data: {
-        labels: calories,
+        labels: labels,
         datasets: [{
-            label: "Calories Burned",
+            label: 'Calories Burned',
             data: calories,
-            borderWidth: 2,
-            tension: 0.3
+            fill: true,
+            backgroundColor: 'rgba(255,123,0,0.2)',
+            borderColor: '#ff7b00',
+            tension: 0.4,
+            pointRadius: 5
         }]
+    },
+    options: {
+        plugins: {
+            legend: { labels: { color: 'white' } }
+        },
+        scales: {
+            x: { ticks: { color: 'white' } },
+            y: { ticks: { color: 'white' } }
+        }
     }
 });
 </script>
