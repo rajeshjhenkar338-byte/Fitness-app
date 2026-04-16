@@ -1,7 +1,7 @@
 body {
   margin: 0;
-  font-family: Arial;
-  background: #f5f7fa;
+  font-family: 'Segoe UI';
+  background: #f4f6f9;
 }
 
 .container {
@@ -16,10 +16,6 @@ body {
   box-shadow: 0 5px 20px rgba(0,0,0,0.1);
 }
 
-h2 {
-  text-align: center;
-}
-
 input {
   width: 100%;
   padding: 10px;
@@ -31,19 +27,10 @@ input {
 button {
   width: 100%;
   padding: 10px;
-  background: #4CAF50;
+  background: #007bff;
   border: none;
   color: white;
   border-radius: 5px;
-}
-
-a {
-  text-decoration: none;
-  color: blue;
-}
-
-.main {
-  padding: 20px;
 }
 
 .topbar {
@@ -54,9 +41,13 @@ a {
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
+.main {
+  padding: 20px;
+}
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(2,1fr);
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
@@ -64,4 +55,9 @@ a {
   background: white;
   padding: 15px;
   border-radius: 10px;
+}
+
+a {
+  color: blue;
+  text-decoration: none;
 }
