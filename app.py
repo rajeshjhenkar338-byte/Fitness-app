@@ -1,8 +1,11 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, Response
 import sqlite3
 from datetime import datetime
 import random
 import os
+from werkzeug.security import generate_password_hash, check_password_hash
+import csv
+import io
 
 app = Flask(__name__)
 app.secret_key = "secret123"
@@ -41,27 +44,40 @@ init_db()
 def home():
     return redirect("/login")
 
+# REGISTER (with hashing)
 @app.route("/register", methods=["GET","POST"])
 def register():
     if request.method == "POST":
+        username = request.form["username"]
+        password = generate_password_hash(request.form["password"])
+
         db = get_db()
         db.execute("INSERT INTO users (username,password) VALUES (?,?)",
-                   (request.form["username"], request.form["password"]))
+                   (username, password))
         db.commit()
+
         return redirect("/login")
+
     return render_template("register.html")
 
+# LOGIN (with hash check)
 @app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
         db = get_db()
-        user = db.execute("SELECT * FROM users WHERE username=? AND password=?",
-                          (request.form["username"], request.form["password"])).fetchone()
-        if user:
-            session["user"] = request.form["username"]
+        user = db.execute("SELECT * FROM users WHERE username=?",
+                          (username,)).fetchone()
+
+        if user and check_password_hash(user[2], password):
+            session["user"] = username
             return redirect("/dashboard")
+
     return render_template("login.html")
 
+# DASHBOARD
 @app.route("/dashboard", methods=["GET","POST"])
 def dashboard():
     if "user" not in session:
@@ -120,6 +136,26 @@ def edit(id):
 
     workout = db.execute("SELECT * FROM workouts WHERE id=?", (id,)).fetchone()
     return render_template("edit.html", w=workout)
+
+# CSV DOWNLOAD
+@app.route("/download")
+def download():
+    db = get_db()
+    workouts = db.execute(
+        "SELECT workout, duration, calories, date FROM workouts WHERE user=?",
+        (session["user"],)
+    ).fetchall()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Workout","Duration","Calories","Date"])
+
+    for w in workouts:
+        writer.writerow(w)
+
+    return Response(output.getvalue(),
+        mimetype="text/csv",
+        headers={"Content-Disposition":"attachment;filename=report.csv"})
 
 @app.route("/logout")
 def logout():
