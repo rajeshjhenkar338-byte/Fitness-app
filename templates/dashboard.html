@@ -15,13 +15,18 @@
 
 <div class="card2">
 <h3>Add Workout</h3>
+
 <form method="POST">
-<input name="workout" required placeholder="Workout">
-<input name="duration" required placeholder="Duration">
-<input name="calories" required placeholder="Calories">
+<input name="workout" placeholder="Workout" required>
+
+<!-- IMPORTANT FIX -->
+<input name="duration" type="number" placeholder="Duration" required>
+<input name="calories" type="number" placeholder="Calories" required>
+
 <input name="notes" placeholder="Notes">
 <button>Add</button>
 </form>
+
 </div>
 
 <div class="card2">
