@@ -10,7 +10,6 @@ app.secret_key = "secret123"
 def get_db():
     return sqlite3.connect("database.db")
 
-# Create tables
 def init_db():
     db = get_db()
 
@@ -50,7 +49,6 @@ init_db()
 def home():
     return redirect("/login")
 
-# REGISTER
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -65,7 +63,6 @@ def register():
 
     return render_template("register.html")
 
-# LOGIN
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -84,7 +81,6 @@ def login():
 
     return render_template("login.html")
 
-# DASHBOARD
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     if "user" not in session:
@@ -106,7 +102,7 @@ def dashboard():
         db.commit()
 
     workouts = db.execute(
-        "SELECT * FROM workouts WHERE user=?",
+        "SELECT * FROM workouts WHERE user=? ORDER BY date",
         (session["user"],)
     ).fetchall()
 
@@ -115,11 +111,10 @@ def dashboard():
         (session["user"],)
     ).fetchall()
 
-    steps = random.randint(2000, 10000)
+    steps = random.randint(3000, 12000)
 
     return render_template("dashboard.html", workouts=workouts, goals=goals, steps=steps)
 
-# ADD GOAL
 @app.route("/add_goal", methods=["POST"])
 def add_goal():
     if "user" not in session:
@@ -133,13 +128,11 @@ def add_goal():
 
     return redirect("/dashboard")
 
-# LOGOUT
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/login")
 
-# IMPORTANT FOR RENDER
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
