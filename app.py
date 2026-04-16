@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session
 import sqlite3
 from datetime import datetime
 import random
+import os
 
 app = Flask(__name__)
 app.secret_key = "secret123"
@@ -9,12 +10,13 @@ app.secret_key = "secret123"
 def get_db():
     return sqlite3.connect("database.db")
 
-# Create tables if not exist
+# Create tables
 def init_db():
     db = get_db()
+
     db.execute("""
     CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT,
         password TEXT
     )
@@ -22,7 +24,7 @@ def init_db():
 
     db.execute("""
     CREATE TABLE IF NOT EXISTS workouts (
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         user TEXT,
         workout TEXT,
         duration INTEGER,
@@ -34,11 +36,12 @@ def init_db():
 
     db.execute("""
     CREATE TABLE IF NOT EXISTS goals (
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         user TEXT,
         goal TEXT
     )
     """)
+
     db.commit()
 
 init_db()
@@ -89,13 +92,12 @@ def dashboard():
 
     db = get_db()
 
-    # Add workout
     if request.method == "POST":
         workout = request.form["workout"]
         duration = request.form["duration"]
         calories = request.form["calories"]
         notes = request.form["notes"]
-        date = datetime.now()
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         db.execute("""
         INSERT INTO workouts (user, workout, duration, calories, notes, date)
@@ -113,10 +115,9 @@ def dashboard():
         (session["user"],)
     ).fetchall()
 
-    # Simulated steps
     steps = random.randint(2000, 10000)
 
-    return render_template("dashboard.html", workouts=workouts, steps=steps, goals=goals)
+    return render_template("dashboard.html", workouts=workouts, goals=goals, steps=steps)
 
 # ADD GOAL
 @app.route("/add_goal", methods=["POST"])
@@ -138,4 +139,7 @@ def logout():
     session.clear()
     return redirect("/login")
 
-app.run(debug=True)
+# IMPORTANT FOR RENDER
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
