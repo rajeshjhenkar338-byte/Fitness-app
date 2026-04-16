@@ -3,73 +3,72 @@
 
 <div class="sidebar">
   <h2>🏋️ Fitness</h2>
-  <a href="#">Dashboard</a>
+  <button onclick="toggleMode()">🌙 Mode</button>
   <a href="/logout">Logout</a>
 </div>
 
 <div class="main">
 
-  <div class="card">
-    <h2>Welcome {{session["user"]}}</h2>
-    <p class="steps">🚶 Steps: {{steps}}</p>
-  </div>
+<div class="card">
+  <h2>Welcome {{session["user"]}}</h2>
+  <h3>🚶 Steps: {{steps}}</h3>
+</div>
 
-  <div class="card">
-    <h3>Add Workout</h3>
-    <form method="POST">
-      <input name="workout" placeholder="Workout">
-      <input name="duration" placeholder="Duration">
-      <input name="calories" placeholder="Calories">
-      <input name="notes" placeholder="Notes">
-      <button>Add</button>
-    </form>
-  </div>
+<div class="card">
+<form method="POST">
+  <input name="workout" placeholder="Workout">
+  <input name="duration" placeholder="Duration">
+  <input name="calories" placeholder="Calories">
+  <input name="notes" placeholder="Notes">
+  <button>Add</button>
+</form>
+</div>
 
-  <div class="card">
-    <h3>Workouts</h3>
-    {% for w in workouts %}
-      <div class="item">
-        💪 {{w[2]}} | 🔥 {{w[4]}} cal | ⏱ {{w[3]}} min
-      </div>
-    {% endfor %}
-  </div>
+<div class="card">
+<h3>Workouts</h3>
+{% for w in workouts %}
+<div class="item">
+💪 {{w[2]}} | 🔥 {{w[4]}} cal
 
-  <div class="card">
-    <h3>📈 Advanced Calories Chart</h3>
-    <canvas id="chart"></canvas>
-  </div>
+<br>
+<a href="/edit/{{w[0]}}">Edit</a> |
+<a href="/delete/{{w[0]}}">Delete</a>
+</div>
+{% endfor %}
+</div>
+
+<div class="card">
+<canvas id="chart"></canvas>
+</div>
 
 </div>
 
 <script>
+function toggleMode(){
+ document.body.classList.toggle("light");
+}
+
 let data = {{ workouts|tojson }};
-let labels = data.map(w => w[6]);
-let calories = data.map(w => w[4]);
+let labels = data.map(w=>w[6]);
+let cal = data.map(w=>w[4]);
 
-const ctx = document.getElementById('chart').getContext('2d');
+const ctx=document.getElementById("chart").getContext("2d");
 
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: labels,
-        datasets: [{
-            label: 'Calories Burned',
-            data: calories,
-            fill: true,
-            backgroundColor: 'rgba(255,123,0,0.2)',
-            borderColor: '#ff7b00',
-            tension: 0.4,
-            pointRadius: 5
-        }]
-    },
-    options: {
-        plugins: {
-            legend: { labels: { color: 'white' } }
-        },
-        scales: {
-            x: { ticks: { color: 'white' } },
-            y: { ticks: { color: 'white' } }
-        }
-    }
+let gradient=ctx.createLinearGradient(0,0,0,400);
+gradient.addColorStop(0,"orange");
+gradient.addColorStop(1,"transparent");
+
+new Chart(ctx,{
+ type:"line",
+ data:{
+  labels:labels,
+  datasets:[{
+    data:cal,
+    fill:true,
+    backgroundColor:gradient,
+    borderColor:"orange",
+    tension:0.4
+  }]
+ }
 });
 </script>
